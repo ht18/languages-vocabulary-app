@@ -1,5 +1,10 @@
+const endpoint = "http://localhost:5500/data.json";
 let data = [];
-const endpoint = "https://ht18.github.io/languages-vocabulary-app//data.json";
+let level = "A1-A2";
+let language = "english";
+let isList = true;
+const wantNote = false;
+let previousNoteOpen;
 
 async function fetchApi(url) {
   const response = await fetch(url);
@@ -16,11 +21,6 @@ async function fetchApi(url) {
   const japaneseData = data.filter((elt) => elt.language === "japanese");
 
   const h1 = document.querySelector("h1");
-  let dataList = [];
-  let isList = true;
-  const wantNote = false;
-  let previousNoteOpen;
-
   const find = document.querySelector(".find");
   const solution = document.getElementById("solution");
   const btnSolution = document.getElementById("btnSolution");
@@ -58,7 +58,12 @@ async function fetchApi(url) {
     changeLanguage(hebrewData, "עִברִית", "hebrew", "Hebrew Words");
   });
   btnJapanese.addEventListener("click", () => {
-    changeLanguage(japaneseData, "日本語", "japanese", "Japanese Words");
+    changeLanguage(
+      japaneseData,
+      "日本語",
+      "japanese",
+      "Japanese Words",
+    );
   });
   btnCard.addEventListener("click", changeToCard);
   level0.addEventListener("click", changeLevel);
@@ -67,24 +72,12 @@ async function fetchApi(url) {
   level3.addEventListener("click", changeLevel);
   level4.addEventListener("click", changeLevel);
 
-  let lessonId;
-  let level;
-  let isLesson;
-
-  function changeLessonId(e) {
-    lessonId = e.target.value;
-    if (isList) {
-      changeToList(lessonId, level, true);
-    } else {
-      changeTocard();
-    }
-  }
   function changeLevel(e) {
     level = e.target.value;
     if (isList) {
-      changeToList(lessonId, level, false);
+      changeToList(language, level);
     } else {
-      changeTocard();
+      changeToCard();
     }
   }
 
@@ -92,13 +85,30 @@ async function fetchApi(url) {
     cardDiv.style.display = "inherit";
     listDiv.style.display = "none";
     findDiv.style.visibility = "visible";
-    inputSolutionDiv.style.visibility = "visible";
     isList = false;
   }
 
   let sortData = [];
 
-  function changeToList(lessonId, level, isLesson) {
+  function changeToList(la, le) {
+    console.log(la, le);
+    let data = [];
+    switch (la) {
+      case "english":
+        data = englishData;
+        break;
+      case "russian":
+        data = russianData;
+        break;
+      case "hebrew":
+        data = hebrewData;
+        break;
+      case "japanese":
+        data = japaneseData;
+        break;
+      default:
+        data = [];
+    }
     isList = true;
     listDiv.style.display = "inherit";
     cardDiv.style.display = "none";
@@ -110,13 +120,12 @@ async function fetchApi(url) {
       }
     }
 
-    if (lessonId && isLesson) {
-      sortData = dataList.filter((word) => word.lesson_id == lessonId);
-    } else if (level && !isLesson) {
-      sortData = dataList.filter((word) => word.level == level);
+    if (le) {
+      sortData = data.filter((word) => word.level === le);
     } else {
-      sortData = dataList;
+      sortData = data;
     }
+
     sortData.forEach((element, index) => {
       const row = table.insertRow(-1);
       const word = row.insertCell(0);
@@ -145,18 +154,18 @@ async function fetchApi(url) {
     return btnPlus;
   }
 
-  function changeLanguage(data, language, langu, table) {
-    h1.innerHTML = language;
-    document.title = language;
+  function changeLanguage(d, la, langu, table) {
+    language = langu;
+    h1.innerHTML = la;
+    document.title = la;
     solution.style.visibility = "hidden";
-    console.log(data, language, langu);
-    dataList = data;
     if (isList) {
-      changeToList();
+      changeToList(language, level);
     } else {
       changeToCard();
     }
-    distribute(data);
+    distribute(sortData);
+    console.log(language);
   }
 
   function btnPlusClick(e) {
@@ -218,6 +227,7 @@ async function fetchApi(url) {
   function getRandomData(arr) {
     const randomBoolean = Math.random() < 0.5;
     const rndInt = randomIntFromInterval(0, arr.length - 1);
+    console.log(arr);
     const { word } = arr[rndInt];
     const { translation } = arr[rndInt];
     const { pronunciation } = arr[rndInt];
@@ -235,11 +245,11 @@ async function fetchApi(url) {
   }
 
   function distribute(dataToDistribute) {
-    getRandomData(dataToDistribute);
-    btnNext.addEventListener("click", getRandomData(dataToDistribute));
+    console.log(sortData);
+    getRandomData(sortData);
+    btnNext.addEventListener("click", getRandomData(sortData));
   }
 
-  dataList = englishData;
-  changeToList();
+  changeToList(language, level);
   getBtnPlus();
 })();

@@ -1,5 +1,5 @@
 let data = [];
-const endpoint = "https://ht18.github.io/learning_languages/data.json";
+const endpoint = "https://ht18.github.io/languages-vocabulary-app//data.json";
 
 async function fetchApi(url) {
   const response = await fetch(url);

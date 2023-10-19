@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>English</title>
+	<style>
+
+html{
+	width: 100vw;
+	height: 100vh;
+	margin: 0;
+	overflow-x: hidden;
+}
+
+body{
+	width: 100%;
+	height: 100%;
+	margin: 0;
+}
+nav {
+	width: 100%;
+}
+		ul{
+			display: flex;
+			padding: 10px;
+			width: calc(100%-20px);
+			justify-content: space-between;
+		}
+
+		li{
+			list-style-type: none;
+		}
+
+		.btnPlus{
+			max-width: 20px;
+		}
+
+		button:not(.btnPlus){
+			padding : 5px 10px;
+			min-width: 80px;
+			min-height: 30px;
+		}
+
+		h1{
+			width: 100%;
+			text-align: center;
+		}
+
+		#legend{
+			font-weight: bold;
+			font-size: medium;
+		}
+
+		thead{
+			font-size: large;
+		}
+
+		#listDiv{
+			width: calc(100% - 20px);
+			padding: 10px;
+			display: flex;
+			justify-content: center;
+		}
+
+		#cardDiv{
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		table{
+			width: 100%;
+		}
+		#table{
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		#all{
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			margin:0;
+		}
+
+		th, td{
+  border: 1px solid black;
+  padding: 10px;
+}
+
+		.find, #solution{
+			font-size: xx-large;
+			text-align: center;
+		}
+
+		#findDiv, #solutionDiv{
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+
+		#btnPronunciation, #btnSolution{
+			width: 50%;
+			margin: 20px 0;
+		}
+
+		#pronunciation{
+			font-style: italic;
+		}
+
+		#note{
+			width: 25px;
+		}
+
+		#fieldset{
+			width: calc(100%-60px);
+			margin: 10px;
+		}
+		#fields{
+			width: 100%;
+			display: flex;
+			justify-content: space-between;
+		}
+
+
+	</style>
+</head>
+<body>
+	<nav id="navLanguages">
+		<ul>
+			<li>
+				<button type="button" id="btnEnglish">English</button>	
+			</li>
+			<li>
+				<button type="button" id="btnRussian">
+					Русский
+				</button>
+			</li>
+		</li>
+	
+	</li>
+	<li>
+		<button type="button" id="btnHebrew">
+			עִברִית
+		</button>
+	</li>
+	<li>
+		<button type="button" id="btnJapanese">
+			日本語
+		</button>
+	</li></li></ul></nav>
+	<nav id="choosePriority">
+		<fieldset id="fieldset">
+			<legend>Level</legend>
+			<div id="fields">
+				<div>
+					<input type="radio" id="level0" name="level" value="0"
+						   checked>
+					<label for="prio1">A1 - A2</label>
+				</div>
+			  
+				<div>
+					<input type="radio" id="level1" name="level" value="1">
+					<label for="prio2">B1</label>
+				</div>
+			  
+				<div>
+					<input type="radio" id="level2" name="level" value="2">
+					<label for="prio3">B2</label>
+				</div>
+				<div>
+					<input type="radio" id="level3" name="level" value="3">
+					<label for="prio0">C1</label>
+				</div>
+				<div>
+					<input type="radio" id="level4" name="level" value="4">
+					<label for="prio0">C2</label>
+				</div>
+			</div>
+			
+		</fieldset>
+	</nav>
+	<nav id="navListOrCard">
+		<ul>
+			<li>
+				<button type="button" id="btnCard">Card</button>	
+			</li>
+			<li>
+				<button type="button" id="btnList">List</button>	
+			</li>
+		</ul>
+	</nav>
+	<div id="all">
+		<h1 id="english">English</h1>
+	<div id="listDiv">
+		<table id="table">
+			<thead>
+				<tr>
+					<th colspan="4">English Words</th>
+				</tr>
+			</thead>
+		<tr id="legend">
+			<td>
+				Word
+			</td>
+			<td>
+				Pronunciation
+			</td>
+			<td>
+				Translation
+			</td>
+			<td>
+				+
+			</td>
+		</tr>
+		</table>
+	</div>
+	<div id="cardDiv">
+		<div id="findDiv">
+			<div class="find">
+			</div>
+			<div style="visibility: hidden" id="pronunciation"></div>
+			<button id="btnPronunciation" type="button">See pronunciation</button>
+		</div>
+		<div id="solutionDiv">
+		<div style="visibility: hidden" id="solution"></div>
+		<div style="visibility: hidden" id="noteDiv"></div>
+		<input type="text" style="visibility: hidden" id="inputSolutionDiv" placeholder="Your solution">
+		<button id="btnSolution" type="button">See solution</button>
+		<button id="btnNext" type="button">Next</button>
+		</div>
+		
+	</div>
+	
+
+	</div>
+	<script src="script.js"></script>
+</body>
+</html>
+

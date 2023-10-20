@@ -153,8 +153,18 @@ async function fetchApi(url) {
     tr[parseInt(rowId, 10) + 1].style.fontSize = "medium";
   }
 
+  function changeInputVisibility() {
+    if (isList) {
+      searchInput.style.visibility = "visible";
+    } else {
+      searchInput.style.visibility = "hidden";
+    }
+  }
+
   function changeToList() {
+    setData(language, level, search);
     isList = true;
+    changeInputVisibility();
     listDiv.style.display = "inherit";
     cardDiv.style.display = "none";
     findDiv.style.visibility = "hidden";
@@ -188,22 +198,9 @@ async function fetchApi(url) {
     }
   }
 
-  function changeToCard() {
-    cardDiv.style.display = "inherit";
-    listDiv.style.display = "none";
-    findDiv.style.visibility = "visible";
-    isList = false;
-  }
-
   function distribute() {
     getRandomData(sortData);
     btnNext.addEventListener("click", getRandomData(sortData));
-  }
-
-  function searchWord(e) {
-    search = e.target.value;
-    setData(language, level, search);
-    changeToList();
   }
 
   function nextData() {
@@ -213,15 +210,32 @@ async function fetchApi(url) {
     noteDiv.style.visibility = "hidden";
   }
 
+  function changeToCard() {
+    search = "";
+    searchInput.value = search;
+    setData(language, level, search);
+    cardDiv.style.display = "inherit";
+    listDiv.style.display = "none";
+    findDiv.style.visibility = "visible";
+    isList = false;
+    changeInputVisibility();
+    distribute(sortData);
+    nextData();
+  }
+
+  function searchWord(e) {
+    search = e.target.value;
+    setData(language, level, search);
+    changeToList();
+  }
+
   function changeLevel(e) {
     level = e.target.value;
-    setData(language, level);
+    setData(language, level, search);
     if (isList) {
       changeToList();
     } else {
       changeToCard();
-      distribute(sortData);
-      nextData();
     }
   }
 
@@ -230,11 +244,9 @@ async function fetchApi(url) {
     h1.innerHTML = la;
     document.title = la;
     solution.style.visibility = "hidden";
-    setData(language, level);
     if (isList) {
       changeToList();
     } else {
-      distribute(sortData);
       changeToCard();
     }
   }
@@ -273,7 +285,7 @@ async function fetchApi(url) {
   level4.addEventListener("click", changeLevel);
   searchInput.addEventListener("input", searchWord);
 
-  setData(language, level);
+  setData(language, level, search);
   changeToList();
   getBtnPlus();
 })();

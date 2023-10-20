@@ -9,6 +9,17 @@ let level = "A1-A2";
 let language = "english";
 let isList = true;
 let search = "";
+const noData = [
+  {
+    id: "",
+    word: "",
+    translation: "",
+    pronunciation: "",
+    language: "",
+    note: "",
+    level: "",
+  },
+];
 
 async function fetchApi(url) {
   const response = await fetch(url);
@@ -64,7 +75,7 @@ async function fetchApi(url) {
         data = japaneseData;
         break;
       default:
-        data = [];
+        data = noData;
     }
 
     if (search !== "") {
@@ -76,8 +87,10 @@ async function fetchApi(url) {
     } else if (le) {
       sortData = data.filter((word) => word.level === le);
     } else {
-      sortData = data;
+      sortData = noData;
     }
+
+    sortData = sortData.length ? sortData : noData;
   }
 
   function getBtnPlus() {
@@ -206,8 +219,8 @@ async function fetchApi(url) {
     if (isList) {
       changeToList();
     } else {
-      distribute(sortData);
       changeToCard();
+      distribute(sortData);
       nextData();
     }
   }

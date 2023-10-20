@@ -1,10 +1,14 @@
-const endpoint = "http://localhost:5500/data.json";
+/* eslint-disable no-undef */
+
+// Déclaration des variables
+
+const endpoint = "https://ht18.github.io/languages-vocabulary-app//data.json";
 let data = [];
+let sortData = [];
 let level = "A1-A2";
 let language = "english";
 let isList = true;
-const wantNote = false;
-let previousNoteOpen;
+let search = "";
 
 async function fetchApi(url) {
   const response = await fetch(url);
@@ -43,56 +47,9 @@ async function fetchApi(url) {
   const level2 = document.getElementById("level2");
   const level3 = document.getElementById("level3");
   const level4 = document.getElementById("level4");
+  const searchInput = document.getElementById("search");
 
-  btnSolution.addEventListener("click", changeVisibility);
-  btnList.addEventListener("click", changeToList);
-  btnNext.addEventListener("click", nextData);
-  btnPronunciation.addEventListener("click", seePronunciation);
-  btnEnglish.addEventListener("click", () => {
-    changeLanguage(englishData, "English", "english", "English Words");
-  });
-  btnRussian.addEventListener("click", () => {
-    changeLanguage(russianData, "Русский", "russian", "Russian Words");
-  });
-  btnHebrew.addEventListener("click", () => {
-    changeLanguage(hebrewData, "עִברִית", "hebrew", "Hebrew Words");
-  });
-  btnJapanese.addEventListener("click", () => {
-    changeLanguage(
-      japaneseData,
-      "日本語",
-      "japanese",
-      "Japanese Words",
-    );
-  });
-  btnCard.addEventListener("click", changeToCard);
-  level0.addEventListener("click", changeLevel);
-  level1.addEventListener("click", changeLevel);
-  level2.addEventListener("click", changeLevel);
-  level3.addEventListener("click", changeLevel);
-  level4.addEventListener("click", changeLevel);
-
-  function changeLevel(e) {
-    level = e.target.value;
-    if (isList) {
-      changeToList(language, level);
-    } else {
-      changeToCard();
-    }
-  }
-
-  function changeToCard() {
-    cardDiv.style.display = "inherit";
-    listDiv.style.display = "none";
-    findDiv.style.visibility = "visible";
-    isList = false;
-  }
-
-  let sortData = [];
-
-  function changeToList(la, le) {
-    console.log(la, le);
-    let data = [];
+  function setData(la, le, s) {
     switch (la) {
       case "english":
         data = englishData;
@@ -109,43 +66,17 @@ async function fetchApi(url) {
       default:
         data = [];
     }
-    isList = true;
-    listDiv.style.display = "inherit";
-    cardDiv.style.display = "none";
-    findDiv.style.visibility = "hidden";
-    const rows = document.querySelectorAll("table tr");
-    for (row of rows) {
-      if (row.id !== "legend") {
-        row.remove();
-      }
-    }
 
-    if (le) {
+    if (search !== "") {
+      sortData = data.filter(
+        (word) =>
+          word.word.includes(s) ||
+          (word.translation.includes(s) && word.level === le)
+      );
+    } else if (le) {
       sortData = data.filter((word) => word.level === le);
     } else {
       sortData = data;
-    }
-
-    sortData.forEach((element, index) => {
-      const row = table.insertRow(-1);
-      const word = row.insertCell(0);
-      const pronunciation = row.insertCell(1);
-      const translation = row.insertCell(2);
-      const note = row.insertCell(3);
-
-      row.dataset.note = element.note;
-      word.innerHTML = element.word;
-      row.style.fontSize = "small";
-      pronunciation.innerHTML = element.pronunciation;
-      pronunciation.style.fontStyle = "italic";
-      translation.innerHTML = element.translation;
-      note.innerHTML = `<button data-row-id=${index} id="btn_${element.id}" class="btnPlus">+</button>`;
-    });
-
-    const btnPlus = getBtnPlus();
-
-    for (let i = 0; i < btnPlus.length; i++) {
-      btnPlus[i].addEventListener("click", btnPlusClick);
     }
   }
 
@@ -154,18 +85,28 @@ async function fetchApi(url) {
     return btnPlus;
   }
 
-  function changeLanguage(d, la, langu, table) {
-    language = langu;
-    h1.innerHTML = la;
-    document.title = la;
-    solution.style.visibility = "hidden";
-    if (isList) {
-      changeToList(language, level);
+  function randomIntFromInterval(min, max) {
+    // min and max included
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  function getRandomData(arr) {
+    const randomBoolean = Math.random() < 0.5;
+    const rndInt = randomIntFromInterval(0, arr.length - 1);
+    const { word } = arr[rndInt];
+    const { translation } = arr[rndInt];
+    const { pronunciation } = arr[rndInt];
+    const { note } = arr[rndInt];
+    noteDiv.innerHTML = note;
+    noteDiv.style.fontSize = "small";
+    pronunciationDiv.innerHTML = pronunciation;
+    if (randomBoolean === true) {
+      find.innerHTML = word;
+      solution.innerHTML = translation;
     } else {
-      changeToCard();
+      find.innerHTML = translation;
+      solution.innerHTML = word;
     }
-    distribute(sortData);
-    console.log(language);
   }
 
   function btnPlusClick(e) {
@@ -199,11 +140,90 @@ async function fetchApi(url) {
     tr[parseInt(rowId, 10) + 1].style.fontSize = "medium";
   }
 
+  function changeToList() {
+    isList = true;
+    listDiv.style.display = "inherit";
+    cardDiv.style.display = "none";
+    findDiv.style.visibility = "hidden";
+    const rows = document.querySelectorAll("table tr");
+    for (row of rows) {
+      if (row.id !== "legend") {
+        row.remove();
+      }
+    }
+
+    sortData.forEach((element, index) => {
+      const row = table.insertRow(-1);
+      const word = row.insertCell(0);
+      const pronunciation = row.insertCell(1);
+      const translation = row.insertCell(2);
+      const note = row.insertCell(3);
+
+      row.dataset.note = element.note;
+      word.innerHTML = element.word;
+      row.style.fontSize = "small";
+      pronunciation.innerHTML = element.pronunciation;
+      pronunciation.style.fontStyle = "italic";
+      translation.innerHTML = element.translation;
+      note.innerHTML = `<button data-row-id=${index} id="btn_${element.id}" class="btnPlus">+</button>`;
+    });
+
+    const btnPlus = getBtnPlus();
+
+    for (let i = 0; i < btnPlus.length; i++) {
+      btnPlus[i].addEventListener("click", btnPlusClick);
+    }
+  }
+
+  function changeToCard() {
+    cardDiv.style.display = "inherit";
+    listDiv.style.display = "none";
+    findDiv.style.visibility = "visible";
+    isList = false;
+  }
+
+  function distribute() {
+    getRandomData(sortData);
+    btnNext.addEventListener("click", getRandomData(sortData));
+  }
+
+  function searchWord(e) {
+    search = e.target.value;
+    setData(language, level, search);
+    changeToList();
+  }
+
   function nextData() {
     getRandomData(sortData);
     solution.style.visibility = "hidden";
     pronunciationDiv.style.visibility = "hidden";
     noteDiv.style.visibility = "hidden";
+  }
+
+  function changeLevel(e) {
+    level = e.target.value;
+    setData(language, level);
+    if (isList) {
+      changeToList();
+    } else {
+      distribute(sortData);
+      changeToCard();
+      nextData();
+    }
+  }
+
+  function changeLanguage(d, la, langu) {
+    language = langu;
+    h1.innerHTML = la;
+    document.title = la;
+    solution.style.visibility = "hidden";
+    setData(language, level);
+    if (isList) {
+      changeToList();
+    } else {
+      distribute(sortData);
+      changeToCard();
+    }
   }
 
   function seePronunciation() {
@@ -214,42 +234,33 @@ async function fetchApi(url) {
     solution.style.visibility = "visible";
     noteDiv.style.visibility = "visible";
   }
-  function setData(dataArr) {
-    data.push(dataArr);
-    return data;
-  }
 
-  function randomIntFromInterval(min, max) {
-    // min and max included
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  }
+  // Déclaration des events listener
+  btnSolution.addEventListener("click", changeVisibility);
+  btnList.addEventListener("click", changeToList);
+  btnNext.addEventListener("click", nextData);
+  btnPronunciation.addEventListener("click", seePronunciation);
+  btnEnglish.addEventListener("click", () => {
+    changeLanguage(englishData, "English", "english", "English Words");
+  });
+  btnRussian.addEventListener("click", () => {
+    changeLanguage(russianData, "Русский", "russian", "Russian Words");
+  });
+  btnHebrew.addEventListener("click", () => {
+    changeLanguage(hebrewData, "עִברִית", "hebrew", "Hebrew Words");
+  });
+  btnJapanese.addEventListener("click", () => {
+    changeLanguage(japaneseData, "日本語", "japanese", "Japanese Words");
+  });
+  btnCard.addEventListener("click", changeToCard);
+  level0.addEventListener("click", changeLevel);
+  level1.addEventListener("click", changeLevel);
+  level2.addEventListener("click", changeLevel);
+  level3.addEventListener("click", changeLevel);
+  level4.addEventListener("click", changeLevel);
+  searchInput.addEventListener("input", searchWord);
 
-  function getRandomData(arr) {
-    const randomBoolean = Math.random() < 0.5;
-    const rndInt = randomIntFromInterval(0, arr.length - 1);
-    console.log(arr);
-    const { word } = arr[rndInt];
-    const { translation } = arr[rndInt];
-    const { pronunciation } = arr[rndInt];
-    const { note } = arr[rndInt];
-    noteDiv.innerHTML = note;
-    noteDiv.style.fontSize = "small";
-    pronunciationDiv.innerHTML = pronunciation;
-    if (randomBoolean === true) {
-      find.innerHTML = word;
-      solution.innerHTML = translation;
-    } else {
-      find.innerHTML = translation;
-      solution.innerHTML = word;
-    }
-  }
-
-  function distribute(dataToDistribute) {
-    console.log(sortData);
-    getRandomData(sortData);
-    btnNext.addEventListener("click", getRandomData(sortData));
-  }
-
-  changeToList(language, level);
+  setData(language, level);
+  changeToList();
   getBtnPlus();
 })();

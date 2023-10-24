@@ -80,9 +80,11 @@ async function fetchApi(url) {
 
     if (search !== "") {
       sortData = data.filter(
-        (word) =>
-          word.word.includes(s) ||
-          (word.translation.includes(s) && word.level === le)
+        (word) => 
+          word.word.toLowerCase().includes(s) ||
+          (word.translation.toLowerCase().includes(s) && word.level === le)
+      
+          
       );
     } else if (le) {
       sortData = data.filter((word) => word.level === le);
@@ -140,6 +142,7 @@ async function fetchApi(url) {
     previousNoteOpen = `note_${id}`;
     const { rowId } = e.target.dataset;
     const noteToInsert = tr[parseInt(rowId, 10) + 1].dataset.note;
+    const pronunciationToInsert = tr[parseInt(rowId, 10) + 1].dataset.pronunciation;
     const rowNote = table.insertRow(parseInt(rowId, 10) + 2);
     rowNote.className = "noteRow";
 
@@ -147,7 +150,13 @@ async function fetchApi(url) {
     noteDesc.colSpan = "4";
     noteDesc.style.fontSize = "small";
     noteDesc.id = `note_${id}`;
-    noteDesc.innerHTML = noteToInsert;
+
+    if(pronunciationToInsert !== ""){
+      noteDesc.innerHTML = `Prononciation :  <i>${pronunciationToInsert}</i><br>`;
+    }
+    if(noteToInsert !== ""){
+      noteDesc.insertAdjacentHTML("beforeend", `Note : <i>${noteToInsert}</i>`)
+    }
 
     tr[parseInt(rowId, 10) + 1].style.fontWeight = "bold";
     tr[parseInt(rowId, 10) + 1].style.fontSize = "medium";
@@ -178,17 +187,18 @@ async function fetchApi(url) {
     sortData.forEach((element, index) => {
       const row = table.insertRow(-1);
       const word = row.insertCell(0);
-      const pronunciation = row.insertCell(1);
-      const translation = row.insertCell(2);
-      const note = row.insertCell(3);
+      const translation = row.insertCell(1);
+      const note = row.insertCell(2);
 
-      row.dataset.note = element.note;
+      row.dataset.note = element.note ? element.note : "";
+      row.dataset.pronunciation = element.pronunciation ? element.pronunciation : "";
       word.innerHTML = element.word;
       row.style.fontSize = "small";
-      pronunciation.innerHTML = element.pronunciation;
-      pronunciation.style.fontStyle = "italic";
       translation.innerHTML = element.translation;
-      note.innerHTML = `<button data-row-id=${index} id="btn_${element.id}" class="btnPlus">+</button>`;
+
+      if(element.pronunciation !== "" || !typeof(element.note)){
+        note.innerHTML = `<button data-row-id=${index} id="btn_${element.id}" class="btnPlus">+</button>`;
+      }
     });
 
     const btnPlus = getBtnPlus();
@@ -224,7 +234,8 @@ async function fetchApi(url) {
   }
 
   function searchWord(e) {
-    search = e.target.value;
+    value = e.target.value;
+    search = value.toLowerCase();
     setData(language, level, search);
     changeToList();
   }

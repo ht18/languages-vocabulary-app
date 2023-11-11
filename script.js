@@ -5,10 +5,12 @@
 const endpoint = "https://ht18.github.io/languages-vocabulary-app//data.json";
 let data = [];
 let sortData = [];
+let selectedWords = [];
 let level = "A1-A2";
 let language = "english";
 let isList = true;
 let search = "";
+let isSelectedWord = false;
 const noData = [
   {
     id: "",
@@ -59,40 +61,41 @@ async function fetchApi(url) {
   const level3 = document.getElementById("level3");
   const level4 = document.getElementById("level4");
   const searchInput = document.getElementById("search");
+  const switchSelectedWords = document.getElementById("selectedWord");
 
   function setData(la, le, s) {
-    switch (la) {
-      case "english":
-        data = englishData;
-        break;
-      case "russian":
-        data = russianData;
-        break;
-      case "hebrew":
-        data = hebrewData;
-        break;
-      case "japanese":
-        data = japaneseData;
-        break;
-      default:
-        data = noData;
-    }
-
-    if (search !== "") {
-      sortData = data.filter(
-        (word) => 
-          word.word.toLowerCase().includes(s) ||
-          (word.translation.toLowerCase().includes(s) && word.level === le)
-      
-          
-      );
-    } else if (le) {
-      sortData = data.filter((word) => word.level === le);
+    if (isSelectedWord) {
+      sortData = selectedWords;
     } else {
-      sortData = noData;
+      switch (la) {
+        case "english":
+          data = englishData;
+          break;
+        case "russian":
+          data = russianData;
+          break;
+        case "hebrew":
+          data = hebrewData;
+          break;
+        case "japanese":
+          data = japaneseData;
+          break;
+        default:
+          data = noData;
+      }
+      if (search !== "") {
+        sortData = data.filter(
+          (word) =>
+            word.word.toLowerCase().includes(s) ||
+            (word.translation.toLowerCase().includes(s) && word.level === le)
+        );
+      } else if (le) {
+        sortData = data.filter((word) => word.level === le);
+      } else {
+        sortData = noData;
+      }
+      sortData = sortData.length ? sortData : noData;
     }
-
-    sortData = sortData.length ? sortData : noData;
   }
 
   function getBtnPlus() {
@@ -142,7 +145,8 @@ async function fetchApi(url) {
     previousNoteOpen = `note_${id}`;
     const { rowId } = e.target.dataset;
     const noteToInsert = tr[parseInt(rowId, 10) + 1].dataset.note;
-    const pronunciationToInsert = tr[parseInt(rowId, 10) + 1].dataset.pronunciation;
+    const pronunciationToInsert =
+      tr[parseInt(rowId, 10) + 1].dataset.pronunciation;
     const rowNote = table.insertRow(parseInt(rowId, 10) + 2);
     rowNote.className = "noteRow";
 
@@ -151,11 +155,11 @@ async function fetchApi(url) {
     noteDesc.style.fontSize = "small";
     noteDesc.id = `note_${id}`;
 
-    if(pronunciationToInsert !== ""){
+    if (pronunciationToInsert !== "") {
       noteDesc.innerHTML = `Prononciation :  <i>${pronunciationToInsert}</i><br>`;
     }
-    if(noteToInsert !== ""){
-      noteDesc.insertAdjacentHTML("beforeend", `Note : <i>${noteToInsert}</i>`)
+    if (noteToInsert !== "") {
+      noteDesc.insertAdjacentHTML("beforeend", `Note : <i>${noteToInsert}</i>`);
     }
 
     tr[parseInt(rowId, 10) + 1].style.fontWeight = "bold";
@@ -170,14 +174,28 @@ async function fetchApi(url) {
     }
   }
 
+  function recheckWords() {
+    selectedWords.forEach((word) => {
+      const radioSelected = document.getElementById(`radioSelected_${word.id}`);
+      radioSelected.checked = true;
+    });
+  }
+
+  function addOrRemoveWordToList(e, elt) {
+    if (e.target.checked && !selectedWords.includes(elt)) {
+      selectedWords.push(elt);
+    }
+  }
+
   function changeToList() {
-    setData(language, level, search);
     isList = true;
+    setData(language, level, search);
     changeInputVisibility();
     listDiv.style.display = "inherit";
     cardDiv.style.display = "none";
     findDiv.style.visibility = "hidden";
     const rows = document.querySelectorAll("table tr");
+
     for (row of rows) {
       if (row.id !== "legend") {
         row.remove();
@@ -186,19 +204,28 @@ async function fetchApi(url) {
 
     sortData.forEach((element, index) => {
       const row = table.insertRow(-1);
-      const word = row.insertCell(0);
-      const translation = row.insertCell(1);
-      const note = row.insertCell(2);
+      const selectedWord = row.insertCell(0);
+      const word = row.insertCell(1);
+      const translation = row.insertCell(2);
+      const note = row.insertCell(3);
 
       row.dataset.note = element.note ? element.note : "";
-      row.dataset.pronunciation = element.pronunciation ? element.pronunciation : "";
+      row.dataset.pronunciation = element.pronunciation
+        ? element.pronunciation
+        : "";
+      selectedWord.innerHTML = `<input id="radioSelected_${element.id}" class="radioSelected" type="checkbox" />`;
       word.innerHTML = element.word;
       row.style.fontSize = "small";
       translation.innerHTML = element.translation;
 
-      if(element.pronunciation !== "" || !typeof(element.note)){
+      if (element.pronunciation !== "" || !typeof element.note) {
         note.innerHTML = `<button data-row-id=${index} id="btn_${element.id}" class="btnPlus">+</button>`;
       }
+
+      const radio = document.querySelector(`#radioSelected_${element.id}`);
+      radio.addEventListener("change", (e) =>
+        addOrRemoveWordToList(e, element)
+      );
     });
 
     const btnPlus = getBtnPlus();
@@ -206,6 +233,7 @@ async function fetchApi(url) {
     for (let i = 0; i < btnPlus.length; i++) {
       btnPlus[i].addEventListener("click", btnPlusClick);
     }
+    recheckWords();
   }
 
   function distribute() {
@@ -233,6 +261,24 @@ async function fetchApi(url) {
     nextData();
   }
 
+  function switchToSelectedWords(e) {
+    if (e.target.checked) {
+      isSelectedWord = true;
+      if (isList) {
+        changeToList();
+      } else {
+        changeToCard();
+      }
+    } else {
+      isSelectedWord = false;
+      if (isList) {
+        changeToList();
+      } else {
+        changeToCard();
+      }
+    }
+  }
+
   function searchWord(e) {
     value = e.target.value;
     search = value.toLowerCase();
@@ -241,6 +287,7 @@ async function fetchApi(url) {
   }
 
   function changeLevel(e) {
+    isSelectedWord = false;
     level = e.target.value;
     setData(language, level, search);
     if (isList) {
@@ -251,6 +298,7 @@ async function fetchApi(url) {
   }
 
   function changeLanguage(d, la, langu) {
+    selectedWords = [];
     language = langu;
     h1.innerHTML = la;
     document.title = la;
@@ -295,6 +343,7 @@ async function fetchApi(url) {
   level3.addEventListener("click", changeLevel);
   level4.addEventListener("click", changeLevel);
   searchInput.addEventListener("input", searchWord);
+  switchSelectedWords.addEventListener("change", switchToSelectedWords);
 
   setData(language, level, search);
   changeToList();

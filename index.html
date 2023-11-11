@@ -67,6 +67,12 @@
 			<li>
 				<button type="button" id="btnCard">Card</button>	
 			</li>
+			<div id="selectedWord">
+				<label class="switch">
+					<input type="checkbox">
+					<span class="slider round"></span>
+				</label>
+			</div>
 			<input style="visibility: hidden" id="search" type="text" placeholder="Search" />
 			<li>
 				<button type="button" id="btnList">List</button>	
@@ -82,11 +88,7 @@
 				</tr>
 			</thead>
 		<tr id="legend">
-			<td id="selectedWord">
-				<label class="switch">
-					<input type="checkbox">
-					<span class="slider round"></span>
-				</label>
+			<td>
 			</td>
 			<td>
 				Word
@@ -114,10 +116,7 @@
 			<button id="btnSolution" type="button">See solution</button>
 			<button id="btnNext" type="button">Next</button>
 		</div>
-		
 	</div>
-	
-
 	</div>
 	<script src="script.js"></script>
 </body>

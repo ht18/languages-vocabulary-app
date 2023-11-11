@@ -64,36 +64,38 @@ async function fetchApi(url) {
   const switchSelectedWords = document.getElementById("selectedWord");
 
   function setData(la, le, s) {
-    switch (la) {
-      case "english":
-        data = englishData;
-        break;
-      case "russian":
-        data = russianData;
-        break;
-      case "hebrew":
-        data = hebrewData;
-        break;
-      case "japanese":
-        data = japaneseData;
-        break;
-      default:
-        data = noData;
-    }
-
-    if (search !== "") {
-      sortData = data.filter(
-        (word) =>
-          word.word.toLowerCase().includes(s) ||
-          (word.translation.toLowerCase().includes(s) && word.level === le)
-      );
-    } else if (le) {
-      sortData = data.filter((word) => word.level === le);
+    if (isSelectedWord) {
+      sortData = selectedWords;
     } else {
-      sortData = noData;
+      switch (la) {
+        case "english":
+          data = englishData;
+          break;
+        case "russian":
+          data = russianData;
+          break;
+        case "hebrew":
+          data = hebrewData;
+          break;
+        case "japanese":
+          data = japaneseData;
+          break;
+        default:
+          data = noData;
+      }
+      if (search !== "") {
+        sortData = data.filter(
+          (word) =>
+            word.word.toLowerCase().includes(s) ||
+            (word.translation.toLowerCase().includes(s) && word.level === le)
+        );
+      } else if (le) {
+        sortData = data.filter((word) => word.level === le);
+      } else {
+        sortData = noData;
+      }
+      sortData = sortData.length ? sortData : noData;
     }
-
-    sortData = sortData.length ? sortData : noData;
   }
 
   function getBtnPlus() {
@@ -172,14 +174,22 @@ async function fetchApi(url) {
     }
   }
 
+  function recheckWords() {
+    selectedWords.forEach((word) => {
+      const radioSelected = document.getElementById(`radioSelected_${word.id}`);
+      radioSelected.checked = true;
+    });
+  }
+
+  function addOrRemoveWordToList(e, elt) {
+    if (e.target.checked && !selectedWords.includes(elt)) {
+      selectedWords.push(elt);
+    }
+  }
+
   function changeToList() {
     isList = true;
-    if (isSelectedWord) {
-      sortData = selectedWords;
-    } else {
-      setData(language, level, search);
-    }
-    console.log(sortData);
+    setData(language, level, search);
     changeInputVisibility();
     listDiv.style.display = "inherit";
     cardDiv.style.display = "none";
@@ -223,15 +233,7 @@ async function fetchApi(url) {
     for (let i = 0; i < btnPlus.length; i++) {
       btnPlus[i].addEventListener("click", btnPlusClick);
     }
-  }
-
-  function addOrRemoveWordToList(e, elt) {
-    selectedWords = [];
-    if (e.target.checked) {
-      selectedWords.push(elt);
-    } else {
-      selectedWords = selectedWords.filter((word) => word.id !== elt.id);
-    }
+    recheckWords();
   }
 
   function distribute() {
@@ -262,10 +264,18 @@ async function fetchApi(url) {
   function switchToSelectedWords(e) {
     if (e.target.checked) {
       isSelectedWord = true;
-      changeToList();
+      if (isList) {
+        changeToList();
+      } else {
+        changeToCard();
+      }
     } else {
       isSelectedWord = false;
-      changeToList();
+      if (isList) {
+        changeToList();
+      } else {
+        changeToCard();
+      }
     }
   }
 
@@ -277,6 +287,7 @@ async function fetchApi(url) {
   }
 
   function changeLevel(e) {
+    isSelectedWord = false;
     level = e.target.value;
     setData(language, level, search);
     if (isList) {
@@ -287,6 +298,7 @@ async function fetchApi(url) {
   }
 
   function changeLanguage(d, la, langu) {
+    selectedWords = [];
     language = langu;
     h1.innerHTML = la;
     document.title = la;

@@ -4,133 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>English</title>
-	<style>
-
-html{
-	width: 100dvw;
-	height: 100dvh;
-	margin: 0;
-	overflow-x: hidden;
-	box-sizing: border-box;
-}
-
-body{
-	width: 100%;
-	height: 100%;
-	margin: 0;
-}
-nav {
-	width: 100%;
-}
-		ul{
-			display: flex;
-			padding: 10px;
-			width: calc(100%-20px);
-			justify-content: space-between;
-		}
-
-		li{
-			list-style-type: none;
-		}
-
-		.btnPlus{
-			max-width: 20px;
-		}
-
-		button:not(.btnPlus){
-			padding : 5px 10px;
-			min-width: 80px;
-			min-height: 30px;
-		}
-
-		h1{
-			width: 100%;
-			text-align: center;
-		}
-
-		#legend{
-			font-weight: bold;
-			font-size: medium;
-		}
-
-		thead{
-			font-size: large;
-		}
-
-		#listDiv{
-			width: calc(100% - 20px);
-			padding: 10px;
-			display: flex;
-			justify-content: center;
-		}
-
-		#cardDiv{
-			width: 100%;
-			display: flex;
-			flex-direction: column;
-		}
-
-		table{
-			width: 100%;
-		}
-		#table{
-			width: 100%;
-			border-collapse: collapse;
-		}
-
-		#all{
-			display: flex;
-			flex-direction: column;
-			width: 100%;
-			margin:0;
-		}
-
-		th, td{
-  border: 1px solid black;
-  padding: 10px;
-}
-td{
-	word-break: break-all;
-}
-
-		.find, #solution{
-			font-size: xx-large;
-			text-align: center;
-		}
-
-		#findDiv, #solutionDiv{
-			width: 100%;
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-		}
-
-		#btnPronunciation, #btnSolution{
-			width: 50%;
-			margin: 20px 0;
-		}
-
-		#pronunciation{
-			font-style: italic;
-		}
-
-		#note{
-			width: 25px;
-		}
-
-		#fieldset{
-			width: calc(100%-60px);
-			margin: 10px;
-		}
-		#fields{
-			width: 100%;
-			display: flex;
-			justify-content: space-between;
-		}
-
-
-	</style>
+	<link href="style.css" rel="stylesheet" />
 </head>
 <body>
 	<nav id="navLanguages">
@@ -208,6 +82,12 @@ td{
 				</tr>
 			</thead>
 		<tr id="legend">
+			<td id="selectedWord">
+				<label class="switch">
+					<input type="checkbox">
+					<span class="slider round"></span>
+				</label>
+			</td>
 			<td>
 				Word
 			</td>

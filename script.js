@@ -3,6 +3,7 @@
 // Déclaration des variables
 
 const endpoint = "https://ht18.github.io/languages-vocabulary-app//data.json";
+const limitItems = 30;
 let data = [];
 let sortData = [];
 let selectedWords = [];
@@ -62,6 +63,7 @@ async function fetchApi(url) {
   const level4 = document.getElementById("level4");
   const searchInput = document.getElementById("search");
   const switchSelectedWords = document.getElementById("selectedWord");
+  const nbrItems = document.getElementById("nbrItems");
 
   function setData(la, le, s) {
     if (isSelectedWord) {
@@ -185,6 +187,10 @@ async function fetchApi(url) {
     if (e.target.checked && !selectedWords.includes(elt)) {
       selectedWords.push(elt);
     }
+    if (!e.target.checked && selectedWords.includes(elt)) {
+      selectedWords = selectedWords.filter((word) => word !== elt);
+    }
+    nbrItems.innerHTML = selectedWords.length.toString();
   }
 
   function changeToList() {
@@ -276,6 +282,11 @@ async function fetchApi(url) {
       } else {
         changeToCard();
       }
+    }
+    if (isSelectedWord) {
+      nbrItems.style.backgroundColor = "#2196F3";
+    } else {
+      nbrItems.style.backgroundColor = "lightgray";
     }
   }
 

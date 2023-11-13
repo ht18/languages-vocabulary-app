@@ -1,13 +1,12 @@
 html{
 	width: 100vw;
-	height: 100vh;
+	height: 100dvh;
 	margin: 0;
 	overflow-x: hidden;
 }
 
 body{
 	width: 100%;
-	height: 100%;
 	margin: 0;
 }
 nav {
@@ -84,6 +83,7 @@ table{
     display: flex;
     flex-direction: column;
     width: 100%;
+    height: 100%;
     margin:0;
 }
 
@@ -183,6 +183,30 @@ table{
     -webkit-transform: translateX(26px);
     -ms-transform: translateX(26px);
     transform: translateX(26px);
+  }
+
+  #divNbrItems{
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      position: sticky;
+      bottom: 10px;
+  }
+
+  #nbrItems{
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      margin-right: 10px;
+      display: flex;
+      color: white;
+      justify-content: center;
+      background-color: lightgray;
+  }
+
+
+  #btnNext{
+      margin-top: 20px;
   }
   
   /* Rounded sliders */

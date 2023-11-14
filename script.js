@@ -5,6 +5,7 @@
 const endpoint = "https://ht18.github.io/languages-vocabulary-app//data.json";
 const limitItems = 30;
 let data = [];
+let nbrPages = 1;
 let sortData = [];
 let selectedWords = [];
 let level = "A1-A2";
@@ -12,6 +13,7 @@ let language = "english";
 let isList = true;
 let search = "";
 let isSelectedWord = false;
+let page = 1;
 const noData = [
   {
     id: "",
@@ -64,6 +66,9 @@ async function fetchApi(url) {
   const searchInput = document.getElementById("search");
   const switchSelectedWords = document.getElementById("selectedWord");
   const nbrItems = document.getElementById("nbrItems");
+  const btnP = document.getElementById("btnP");
+  const btnN = document.getElementById("btnN");
+  const pageSpan = document.getElementById("page");
 
   function setData(la, le, s) {
     if (isSelectedWord) {
@@ -85,6 +90,9 @@ async function fetchApi(url) {
         default:
           data = noData;
       }
+
+      nbrPages = Math.floor(data.length / limitItems) + 1;
+
       if (search !== "") {
         sortData = data.filter(
           (word) =>
@@ -92,7 +100,9 @@ async function fetchApi(url) {
             (word.translation.toLowerCase().includes(s) && word.level === le)
         );
       } else if (le) {
-        sortData = data.filter((word) => word.level === le);
+        sortData = data
+          .filter((word) => word.level === le)
+          .slice((page - 1) * limitItems, page * limitItems);
       } else {
         sortData = noData;
       }
@@ -195,9 +205,20 @@ async function fetchApi(url) {
 
   function changeToList() {
     isList = true;
-    setData(language, level, search);
+    setData(language, level, search, page);
+    pageSpan.innerHTML = page;
+    if (page === 1) {
+      btnP.style.visibility = "hidden";
+    } else {
+      btnP.style.visibility = "visible";
+    }
+    if (page === nbrPages) {
+      btnN.style.visibility = "hidden";
+    } else {
+      btnN.style.visibility = "visible";
+    }
     changeInputVisibility();
-    listDiv.style.display = "inherit";
+    listDiv.style.display = "initial";
     cardDiv.style.display = "none";
     findDiv.style.visibility = "hidden";
     const rows = document.querySelectorAll("table tr");
@@ -240,6 +261,19 @@ async function fetchApi(url) {
       btnPlus[i].addEventListener("click", btnPlusClick);
     }
     recheckWords();
+  }
+
+  function prevPage() {
+    if (page > 1) {
+      page--;
+      changeToList();
+    }
+  }
+  function nextPage() {
+    if (page < nbrPages) {
+      page++;
+      changeToList();
+    }
   }
 
   function distribute() {
@@ -355,8 +389,10 @@ async function fetchApi(url) {
   level4.addEventListener("click", changeLevel);
   searchInput.addEventListener("input", searchWord);
   switchSelectedWords.addEventListener("change", switchToSelectedWords);
+  btnP.addEventListener("click", prevPage);
+  btnN.addEventListener("click", nextPage);
 
-  setData(language, level, search);
+  setData(language, level, search, page);
   changeToList();
   getBtnPlus();
 })();

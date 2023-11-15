@@ -14,6 +14,7 @@ let isList = true;
 let search = "";
 let isSelectedWord = false;
 let page = 1;
+let isSync = false;
 const noData = [
   {
     id: "",
@@ -69,7 +70,7 @@ async function fetchApi(url) {
   const btnP = document.getElementById("btnP");
   const btnN = document.getElementById("btnN");
   const pageSpan = document.getElementById("page");
-
+  const cookiesSynchronized = document.getElementById("cookiesSynchronized");
   function setData(la, le, s) {
     if (isSelectedWord) {
       sortData = selectedWords;
@@ -127,15 +128,15 @@ async function fetchApi(url) {
     const { translation } = arr[rndInt];
     const { pronunciation } = arr[rndInt];
     const { note } = arr[rndInt];
-    noteDiv.innerHTML = note;
+    noteDiv.innerText = note;
     noteDiv.style.fontSize = "small";
-    pronunciationDiv.innerHTML = pronunciation;
+    pronunciationDiv.innerText = pronunciation;
     if (randomBoolean === true) {
-      find.innerHTML = word;
-      solution.innerHTML = translation;
+      find.innerText = word;
+      solution.innerText = translation;
     } else {
-      find.innerHTML = translation;
-      solution.innerHTML = word;
+      find.innerText = translation;
+      solution.innerText = word;
     }
   }
 
@@ -168,7 +169,7 @@ async function fetchApi(url) {
     noteDesc.id = `note_${id}`;
 
     if (pronunciationToInsert !== "") {
-      noteDesc.innerHTML = `Prononciation :  <i>${pronunciationToInsert}</i><br>`;
+      noteDesc.innerText = `Prononciation :  <i>${pronunciationToInsert}</i><br>`;
     }
     if (noteToInsert !== "") {
       noteDesc.insertAdjacentHTML("beforeend", `Note : <i>${noteToInsert}</i>`);
@@ -200,13 +201,13 @@ async function fetchApi(url) {
     if (!e.target.checked && selectedWords.includes(elt)) {
       selectedWords = selectedWords.filter((word) => word !== elt);
     }
-    nbrItems.innerHTML = selectedWords.length.toString();
+    nbrItems.innerText = selectedWords.length.toString();
   }
 
   function changeToList() {
     isList = true;
     setData(language, level, search, page);
-    pageSpan.innerHTML = page;
+    pageSpan.innerText = page;
     if (page === 1) {
       btnP.style.visibility = "hidden";
     } else {
@@ -217,6 +218,13 @@ async function fetchApi(url) {
     } else {
       btnN.style.visibility = "visible";
     }
+
+    if (isSync) {
+      cookiesSynchronized.innerText = "🔒";
+    } else {
+      cookiesSynchronized.innerText = "🔓";
+    }
+
     changeInputVisibility();
     listDiv.style.display = "initial";
     cardDiv.style.display = "none";
@@ -241,9 +249,9 @@ async function fetchApi(url) {
         ? element.pronunciation
         : "";
       selectedWord.innerHTML = `<input id="radioSelected_${element.id}" class="radioSelected" type="checkbox" />`;
-      word.innerHTML = element.word;
+      word.innerText = element.word;
       row.style.fontSize = "small";
-      translation.innerHTML = element.translation;
+      translation.innerText = element.translation;
 
       if (element.pronunciation !== "" || !typeof element.note) {
         note.innerHTML = `<button data-row-id=${index} id="btn_${element.id}" class="btnPlus">+</button>`;
@@ -345,7 +353,7 @@ async function fetchApi(url) {
   function changeLanguage(d, la, langu) {
     selectedWords = [];
     language = langu;
-    h1.innerHTML = la;
+    h1.innerText = la;
     document.title = la;
     solution.style.visibility = "hidden";
     if (isList) {
@@ -362,6 +370,15 @@ async function fetchApi(url) {
   function changeVisibility() {
     solution.style.visibility = "visible";
     noteDiv.style.visibility = "visible";
+  }
+
+  function changeSync() {
+    isSync = !isSync;
+    if (isSync) {
+      cookiesSynchronized.innerText = "🔒";
+    } else {
+      cookiesSynchronized.innerText = "🔓";
+    }
   }
 
   // Déclaration des events listener
@@ -391,6 +408,7 @@ async function fetchApi(url) {
   switchSelectedWords.addEventListener("change", switchToSelectedWords);
   btnP.addEventListener("click", prevPage);
   btnN.addEventListener("click", nextPage);
+  cookiesSynchronized.addEventListener("click", changeSync);
 
   setData(language, level, search, page);
   changeToList();

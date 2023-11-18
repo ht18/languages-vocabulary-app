@@ -4,6 +4,7 @@
 
 const endpoint = "https://ht18.github.io/languages-vocabulary-app//data.json";
 const limitItems = 30;
+const expDataCookiesDays = 30;
 let data = [];
 let nbrPages = 1;
 let sortData = [];
@@ -69,6 +70,10 @@ async function fetchApi(url) {
   const btnP = document.getElementById("btnP");
   const btnN = document.getElementById("btnN");
   const pageSpan = document.getElementById("page");
+  const cookiesSynchronized = document.getElementById("cookiesSynchronized");
+  const reset = document.getElementById("reset");
+  const cookiesUpload = document.getElementById("cookiesUpload");
+  let checkbox = [];
 
   function setData(la, le, s) {
     if (isSelectedWord) {
@@ -100,9 +105,10 @@ async function fetchApi(url) {
             (word.translation.toLowerCase().includes(s) && word.level === le)
         );
       } else if (le) {
-        sortData = data
-          .filter((word) => word.level === le)
-          .slice((page - 1) * limitItems, page * limitItems);
+        sortData = data.filter((word) => word.level === le);
+        if (isList) {
+          sortData = sortData.slice((page - 1) * limitItems, page * limitItems);
+        }
       } else {
         sortData = noData;
       }
@@ -127,15 +133,15 @@ async function fetchApi(url) {
     const { translation } = arr[rndInt];
     const { pronunciation } = arr[rndInt];
     const { note } = arr[rndInt];
-    noteDiv.innerHTML = note;
+    noteDiv.innerText = note;
     noteDiv.style.fontSize = "small";
-    pronunciationDiv.innerHTML = pronunciation;
+    pronunciationDiv.innerText = pronunciation;
     if (randomBoolean === true) {
-      find.innerHTML = word;
-      solution.innerHTML = translation;
+      find.innerText = word;
+      solution.innerText = translation;
     } else {
-      find.innerHTML = translation;
-      solution.innerHTML = word;
+      find.innerText = translation;
+      solution.innerText = word;
     }
   }
 
@@ -168,7 +174,7 @@ async function fetchApi(url) {
     noteDesc.id = `note_${id}`;
 
     if (pronunciationToInsert !== "") {
-      noteDesc.innerHTML = `Prononciation :  <i>${pronunciationToInsert}</i><br>`;
+      noteDesc.innerText = `Prononciation :  <i>${pronunciationToInsert}</i><br>`;
     }
     if (noteToInsert !== "") {
       noteDesc.insertAdjacentHTML("beforeend", `Note : <i>${noteToInsert}</i>`);
@@ -187,6 +193,7 @@ async function fetchApi(url) {
   }
 
   function recheckWords() {
+    checkbox.forEach((elt) => (elt.checked = false));
     selectedWords.forEach((word) => {
       const radioSelected = document.getElementById(`radioSelected_${word.id}`);
       radioSelected.checked = true;
@@ -200,13 +207,41 @@ async function fetchApi(url) {
     if (!e.target.checked && selectedWords.includes(elt)) {
       selectedWords = selectedWords.filter((word) => word !== elt);
     }
-    nbrItems.innerHTML = selectedWords.length.toString();
+    nbrItems.innerText = selectedWords.length.toString();
+  }
+
+  function checkPageWords(e, elt) {
+    const radioSelected = document.getElementById(`radioSelected_${elt.id}`);
+    radioSelected.checked = true;
+  }
+
+  function checkRemovePageWords(e, elt) {
+    const radioSelected = document.getElementById(`radioSelected_${elt.id}`);
+    radioSelected.checked = false;
+  }
+
+  function selectPageData(e) {
+    sortData.forEach((elt) => {
+      addOrRemoveWordToList(e, elt);
+      if (e.target.checked) {
+        checkPageWords(e, elt);
+      } else {
+        checkRemovePageWords(e, elt);
+      }
+    });
   }
 
   function changeToList() {
     isList = true;
     setData(language, level, search, page);
-    pageSpan.innerHTML = page;
+    const legend = document.getElementById("legend");
+    document.querySelectorAll("#trCheckbox").forEach((elt) => elt.remove());
+    legend.prepend(document.createElement("td"));
+    legend.firstChild.id = "trCheckbox";
+    legend.firstChild.innerHTML = `<input id=checkbox_${page} type="checkbox" class="pageSelected">`;
+    const pageSelected = document.getElementById(`checkbox_${page}`);
+    pageSelected.addEventListener("click", selectPageData);
+    pageSpan.innerText = page;
     if (page === 1) {
       btnP.style.visibility = "hidden";
     } else {
@@ -217,6 +252,7 @@ async function fetchApi(url) {
     } else {
       btnN.style.visibility = "visible";
     }
+
     changeInputVisibility();
     listDiv.style.display = "initial";
     cardDiv.style.display = "none";
@@ -240,10 +276,11 @@ async function fetchApi(url) {
       row.dataset.pronunciation = element.pronunciation
         ? element.pronunciation
         : "";
-      selectedWord.innerHTML = `<input id="radioSelected_${element.id}" class="radioSelected" type="checkbox" />`;
-      word.innerHTML = element.word;
+      selectedWord.innerHTML = `<input class="checkbox" id="radioSelected_${element.id}" class="radioSelected" type="checkbox" />`;
+      checkbox = document.querySelectorAll(".checkbox");
+      word.innerText = element.word;
       row.style.fontSize = "small";
-      translation.innerHTML = element.translation;
+      translation.innerText = element.translation;
 
       if (element.pronunciation !== "" || !typeof element.note) {
         note.innerHTML = `<button data-row-id=${index} id="btn_${element.id}" class="btnPlus">+</button>`;
@@ -289,13 +326,13 @@ async function fetchApi(url) {
   }
 
   function changeToCard() {
+    isList = false;
     search = "";
     searchInput.value = search;
     setData(language, level, search);
     cardDiv.style.display = "inherit";
     listDiv.style.display = "none";
     findDiv.style.visibility = "visible";
-    isList = false;
     changeInputVisibility();
     distribute(sortData);
     nextData();
@@ -345,7 +382,7 @@ async function fetchApi(url) {
   function changeLanguage(d, la, langu) {
     selectedWords = [];
     language = langu;
-    h1.innerHTML = la;
+    h1.innerText = la;
     document.title = la;
     solution.style.visibility = "hidden";
     if (isList) {
@@ -362,6 +399,49 @@ async function fetchApi(url) {
   function changeVisibility() {
     solution.style.visibility = "visible";
     noteDiv.style.visibility = "visible";
+  }
+
+  function deleteCookie(name) {
+    document.cookie = `${name}="";-1; path=/`;
+  }
+
+  function setCookie(e, cookieName, cookieValue) {
+    e.preventDefault();
+    deleteCookie(cookieName);
+    const date = new Date();
+    date.setTime(date.getTime() + expDataCookiesDays * 24 * 60 * 60 * 1000);
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${cookieName}=${cookieValue}; ${expires}; path=/`;
+  }
+
+  function resetSelectedWords() {
+    selectedWords = [];
+    nbrItems.innerText = selectedWords.length.toString();
+    if (isList) {
+      changeToList();
+    } else {
+      changeToCard();
+    }
+  }
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop().split(";").shift();
+    }
+    return "";
+  }
+
+  function uploadCookies(e) {
+    e.preventDefault();
+    const cookieData = getCookie("data");
+    selectedWords = JSON.parse(cookieData);
+    if (isList) {
+      changeToList();
+    } else {
+      changeToCard();
+    }
   }
 
   // Déclaration des events listener
@@ -391,6 +471,11 @@ async function fetchApi(url) {
   switchSelectedWords.addEventListener("change", switchToSelectedWords);
   btnP.addEventListener("click", prevPage);
   btnN.addEventListener("click", nextPage);
+  cookiesSynchronized.addEventListener("click", (e) =>
+    setCookie(e, "data", JSON.stringify(selectedWords))
+  );
+  reset.addEventListener("click", resetSelectedWords);
+  cookiesUpload.addEventListener("click", (e) => uploadCookies(e));
 
   setData(language, level, search, page);
   changeToList();

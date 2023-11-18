@@ -71,6 +71,8 @@ async function fetchApi(url) {
   const btnN = document.getElementById("btnN");
   const pageSpan = document.getElementById("page");
   const cookiesSynchronized = document.getElementById("cookiesSynchronized");
+  let checkbox = [];
+
   function setData(la, le, s) {
     if (isSelectedWord) {
       sortData = selectedWords;
@@ -101,9 +103,10 @@ async function fetchApi(url) {
             (word.translation.toLowerCase().includes(s) && word.level === le)
         );
       } else if (le) {
-        sortData = data
-          .filter((word) => word.level === le)
-          .slice((page - 1) * limitItems, page * limitItems);
+        sortData = data.filter((word) => word.level === le);
+        if (isList) {
+          sortData = sortData.slice((page - 1) * limitItems, page * limitItems);
+        }
       } else {
         sortData = noData;
       }
@@ -188,6 +191,7 @@ async function fetchApi(url) {
   }
 
   function recheckWords() {
+    checkbox.forEach((elt) => (elt.checked = false));
     selectedWords.forEach((word) => {
       const radioSelected = document.getElementById(`radioSelected_${word.id}`);
       radioSelected.checked = true;
@@ -204,9 +208,37 @@ async function fetchApi(url) {
     nbrItems.innerText = selectedWords.length.toString();
   }
 
+  function checkPageWords(e, elt) {
+    const radioSelected = document.getElementById(`radioSelected_${elt.id}`);
+    radioSelected.checked = true;
+  }
+
+  function checkRemovePageWords(e, elt) {
+    const radioSelected = document.getElementById(`radioSelected_${elt.id}`);
+    radioSelected.checked = false;
+  }
+
+  function selectPageData(e) {
+    sortData.forEach((elt) => {
+      addOrRemoveWordToList(e, elt);
+      if (e.target.checked) {
+        checkPageWords(e, elt);
+      } else {
+        checkRemovePageWords(e, elt);
+      }
+    });
+  }
+
   function changeToList() {
     isList = true;
     setData(language, level, search, page);
+    const legend = document.getElementById("legend");
+    document.querySelectorAll("#trCheckbox").forEach((elt) => elt.remove());
+    legend.prepend(document.createElement("td"));
+    legend.firstChild.id = "trCheckbox";
+    legend.firstChild.innerHTML = `<input id=checkbox_${page} type="checkbox" class="pageSelected">`;
+    const pageSelected = document.getElementById(`checkbox_${page}`);
+    pageSelected.addEventListener("click", selectPageData);
     pageSpan.innerText = page;
     if (page === 1) {
       btnP.style.visibility = "hidden";
@@ -248,7 +280,8 @@ async function fetchApi(url) {
       row.dataset.pronunciation = element.pronunciation
         ? element.pronunciation
         : "";
-      selectedWord.innerHTML = `<input id="radioSelected_${element.id}" class="radioSelected" type="checkbox" />`;
+      selectedWord.innerHTML = `<input class="checkbox" id="radioSelected_${element.id}" class="radioSelected" type="checkbox" />`;
+      checkbox = document.querySelectorAll(".checkbox");
       word.innerText = element.word;
       row.style.fontSize = "small";
       translation.innerText = element.translation;
@@ -297,13 +330,13 @@ async function fetchApi(url) {
   }
 
   function changeToCard() {
+    isList = false;
     search = "";
     searchInput.value = search;
     setData(language, level, search);
     cardDiv.style.display = "inherit";
     listDiv.style.display = "none";
     findDiv.style.visibility = "visible";
-    isList = false;
     changeInputVisibility();
     distribute(sortData);
     nextData();

@@ -4,6 +4,7 @@
 
 const endpoint = "https://ht18.github.io/languages-vocabulary-app//data.json";
 const limitItems = 30;
+const expDataCookiesDays = 30;
 let data = [];
 let nbrPages = 1;
 let sortData = [];
@@ -14,7 +15,6 @@ let isList = true;
 let search = "";
 let isSelectedWord = false;
 let page = 1;
-let isSync = false;
 const noData = [
   {
     id: "",
@@ -71,6 +71,8 @@ async function fetchApi(url) {
   const btnN = document.getElementById("btnN");
   const pageSpan = document.getElementById("page");
   const cookiesSynchronized = document.getElementById("cookiesSynchronized");
+  const reset = document.getElementById("reset");
+  const cookiesUpload = document.getElementById("cookiesUpload");
   let checkbox = [];
 
   function setData(la, le, s) {
@@ -251,12 +253,6 @@ async function fetchApi(url) {
       btnN.style.visibility = "visible";
     }
 
-    if (isSync) {
-      cookiesSynchronized.innerText = "🔒";
-    } else {
-      cookiesSynchronized.innerText = "🔓";
-    }
-
     changeInputVisibility();
     listDiv.style.display = "initial";
     cardDiv.style.display = "none";
@@ -405,12 +401,46 @@ async function fetchApi(url) {
     noteDiv.style.visibility = "visible";
   }
 
-  function changeSync() {
-    isSync = !isSync;
-    if (isSync) {
-      cookiesSynchronized.innerText = "🔒";
+  function deleteCookie(name) {
+    document.cookie = `${name}="";-1; path=/`;
+  }
+
+  function setCookie(e, cookieName, cookieValue) {
+    e.preventDefault();
+    deleteCookie(cookieName);
+    const date = new Date();
+    date.setTime(date.getTime() + expDataCookiesDays * 24 * 60 * 60 * 1000);
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${cookieName}=${cookieValue}; ${expires}; path=/`;
+  }
+
+  function resetSelectedWords() {
+    selectedWords = [];
+    nbrItems.innerText = selectedWords.length.toString();
+    if (isList) {
+      changeToList();
     } else {
-      cookiesSynchronized.innerText = "🔓";
+      changeToCard();
+    }
+  }
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop().split(";").shift();
+    }
+    return "";
+  }
+
+  function uploadCookies(e) {
+    e.preventDefault();
+    const cookieData = getCookie("data");
+    selectedWords = JSON.parse(cookieData);
+    if (isList) {
+      changeToList();
+    } else {
+      changeToCard();
     }
   }
 
@@ -441,7 +471,11 @@ async function fetchApi(url) {
   switchSelectedWords.addEventListener("change", switchToSelectedWords);
   btnP.addEventListener("click", prevPage);
   btnN.addEventListener("click", nextPage);
-  cookiesSynchronized.addEventListener("click", changeSync);
+  cookiesSynchronized.addEventListener("click", (e) =>
+    setCookie(e, "data", JSON.stringify(selectedWords))
+  );
+  reset.addEventListener("click", resetSelectedWords);
+  cookiesUpload.addEventListener("click", (e) => uploadCookies(e));
 
   setData(language, level, search, page);
   changeToList();

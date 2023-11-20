@@ -135,7 +135,7 @@ async function fetchApi(url) {
     const { note } = arr[rndInt];
     noteDiv.innerText = note;
     noteDiv.style.fontSize = "small";
-    pronunciationDiv.innerText = pronunciation;
+    pronunciationDiv.innerHTML = pronunciation;
     if (randomBoolean === true) {
       find.innerText = word;
       solution.innerText = translation;
@@ -174,7 +174,7 @@ async function fetchApi(url) {
     noteDesc.id = `note_${id}`;
 
     if (pronunciationToInsert !== "") {
-      noteDesc.innerText = `Prononciation :  <i>${pronunciationToInsert}</i><br>`;
+      noteDesc.innerHTML = `Prononciation :  <i>${pronunciationToInsert}</i><br>`;
     }
     if (noteToInsert !== "") {
       noteDesc.insertAdjacentHTML("beforeend", `Note : <i>${noteToInsert}</i>`);

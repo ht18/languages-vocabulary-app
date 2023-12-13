@@ -335,7 +335,7 @@ async function fetchApi(url) {
     isList = false;
     search = "";
     searchInput.value = search;
-    setData(language, level, search);
+    setData(language, level, search, tag);
     cardDiv.style.display = "inherit";
     listDiv.style.display = "none";
     findDiv.style.visibility = "visible";
@@ -383,13 +383,21 @@ async function fetchApi(url) {
       selectTag.style.display = "none";
       searchInput.hidden = false;
       tag = "";
-      changeToList();
+      if(isList){
+        changeToList();
+      } else {
+        changeToCard();
+      }
     }
   }
 
   function getTagSelected(e) {
     tag = e.target.value;
-    changeToList();
+    if(isList){
+      changeToList();
+    } else {
+      changeToCard();
+    }
   }
 
   function changeLevel(e) {

@@ -15,6 +15,7 @@ let isList = true;
 let search = "";
 let isSelectedWord = false;
 let page = 1;
+let tag = "";
 const noData = [
   {
     id: "",
@@ -73,9 +74,12 @@ async function fetchApi(url) {
   const cookiesSynchronized = document.getElementById("cookiesSynchronized");
   const reset = document.getElementById("reset");
   const cookiesUpload = document.getElementById("cookiesUpload");
+  const tagSelected = document.getElementById("tagSelected");
+  const selectTag = document.getElementById("selectTag");
+  const tagSelect = document.getElementById("tagSelect");
   let checkbox = [];
 
-  function setData(la, le, s) {
+  function setData(la, le, s, t) {
     if (isSelectedWord) {
       sortData = selectedWords;
     } else {
@@ -98,7 +102,9 @@ async function fetchApi(url) {
 
       nbrPages = Math.floor(data.length / limitItems) + 1;
 
-      if (search !== "") {
+      if (t) {
+        sortData = data.filter((word) => word.tag === t.trim());
+      } else if (search !== "") {
         sortData = data.filter(
           (word) =>
             word.word.toLowerCase().includes(s) ||
@@ -112,7 +118,7 @@ async function fetchApi(url) {
       } else {
         sortData = noData;
       }
-      sortData = sortData.length ? sortData : noData;
+      sortData = sortData.length !== 0 ? sortData : noData;
     }
   }
 
@@ -233,7 +239,7 @@ async function fetchApi(url) {
 
   function changeToList() {
     isList = true;
-    setData(language, level, search, page);
+    setData(language, level, search, tag);
     const legend = document.getElementById("legend");
     document.querySelectorAll("#trCheckbox").forEach((elt) => elt.remove());
     legend.prepend(document.createElement("td"));
@@ -368,6 +374,24 @@ async function fetchApi(url) {
     changeToList();
   }
 
+  function tagSearch(e) {
+    checked = e.target.checked;
+    if (checked) {
+      searchInput.hidden = true;
+      selectTag.style.display = "inherit";
+    } else {
+      selectTag.style.display = "none";
+      searchInput.hidden = false;
+      tag = "";
+      changeToList();
+    }
+  }
+
+  function getTagSelected(e) {
+    tag = e.target.value;
+    changeToList();
+  }
+
   function changeLevel(e) {
     isSelectedWord = false;
     level = e.target.value;
@@ -476,8 +500,10 @@ async function fetchApi(url) {
   );
   reset.addEventListener("click", resetSelectedWords);
   cookiesUpload.addEventListener("click", (e) => uploadCookies(e));
+  tagSelected.addEventListener("click", tagSearch);
+  tagSelect.addEventListener("change", getTagSelected);
 
-  setData(language, level, search, page);
+  setData(language, level, search);
   changeToList();
   getBtnPlus();
 })();
